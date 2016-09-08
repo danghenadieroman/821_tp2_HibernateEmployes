@@ -39,6 +39,7 @@ public class HibernateUtil {
         Session s = (Session) session.get();
         if (s != null) {
             s.close();
+            System.out.println("Session fermer!");
         }
         session.set(null);
     }
