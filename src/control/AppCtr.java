@@ -1,10 +1,6 @@
 package control;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import model.Departments;
-import model.Employees;
+
 import vue.FenRechercherEmploye;
 
 /**
@@ -19,7 +15,7 @@ public class AppCtr {
     public static void main(String[] args) {
 
         // Creer fenetre FenRechercherEmploye
-        FenRechercherEmploye fenetre = new FenRechercherEmploye();
+        FenRechercherEmploye fenRechercherEmploye = new FenRechercherEmploye();
 
     }
 

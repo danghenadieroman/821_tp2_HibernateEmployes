@@ -200,5 +200,4 @@ public class FenRechercherEmploye {
         tableEmploye.setModel(new DefaultTableModel(donneesTable, enteteTable));
     }//afficherResultat
 
-    //methodes combobox
 }
