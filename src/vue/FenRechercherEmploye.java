@@ -41,6 +41,7 @@ public class FenRechercherEmploye {
     private JButton btnRechercher;
     private JButton btnSaisirDepartement;
     private JButton btnSaisirEmploye;
+    private JButton btnQuitter;
 
     private JTable tableEmploye;
     private JTable tableau;
@@ -81,6 +82,8 @@ public class FenRechercherEmploye {
         jpSaisie.add(btnSaisirDepartement);
         btnSaisirEmploye = new JButton("Saisir Employé");
         jpSaisie.add(btnSaisirEmploye);
+        btnQuitter = new JButton("Quitter");
+        jpSaisie.add(btnQuitter);
 
         //creation model table
         model = new DefaultTableModel();
@@ -118,6 +121,14 @@ public class FenRechercherEmploye {
             }
         });
 
+        //bouton Quitter
+        btnQuitter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                System.exit(0);
+            }
+        });
+
         //settings fenetre
         fenetre.setTitle("Détails employés");
         fenetre.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -126,7 +137,7 @@ public class FenRechercherEmploye {
         fenetre.setResizable(true);
         fenetre.setVisible(true);
     }
-    
+
     //attributs requetes
     private static String query_first_name = "from Employees e where e.firstName like '";
     private static String query_last_name = "from Employees e where e.lastName like '";
@@ -143,7 +154,7 @@ public class FenRechercherEmploye {
 
     //execution requete HQL
     private void executeHQLQuery(String query) {
-        
+
         try {
             Session session = HibernateUtil.currentSession();
             session.beginTransaction();
@@ -188,7 +199,6 @@ public class FenRechercherEmploye {
         //afficher maintenant la table sur le frame
         tableEmploye.setModel(new DefaultTableModel(donneesTable, enteteTable));
     }//afficherResultat
-    
-    //methodes combobox
 
+    //methodes combobox
 }
