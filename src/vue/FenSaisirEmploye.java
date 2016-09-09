@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -32,7 +34,19 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
 import util.HibernateUtil;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Properties;
+import javax.swing.JFormattedTextField;
+import model.Jobs;
+import org.jdatepicker.impl.*;
+import org.jdatepicker.util.*;
+import org.jdatepicker.*;
 
 /**
  *
@@ -55,6 +69,7 @@ public class FenSaisirEmploye {
     JLabel lblEmail;
     JLabel lblHireDate;
     JLabel lblJobId;
+    JLabel lblJobIdDeails;
 
     JTextField txtEmployeeId;
     JTextField txtFirstName;
@@ -67,6 +82,7 @@ public class FenSaisirEmploye {
     JButton btnQuitter;
 
     JComboBox<String> comboBoxJob = new JComboBox<String>();
+    UtilDateModel modelDate;
 
     public FenSaisirEmploye() {
 
@@ -84,7 +100,8 @@ public class FenSaisirEmploye {
         lblLastName = new JLabel("Nom:");
         lblEmail = new JLabel("Courriel:");
         lblHireDate = new JLabel("Date d'embouche:");
-        lblJobId = new JLabel("Poste du travail:");
+        lblJobId = new JLabel("Job:");
+        lblJobIdDeails = new JLabel();
 
         txtEmployeeId = new JTextField(10);
         txtFirstName = new JTextField(10);
@@ -135,13 +152,28 @@ public class FenSaisirEmploye {
 
         jpFormulaire.add(lblHireDate);
         lblHireDate.setHorizontalAlignment(SwingConstants.RIGHT);
-        jpFormulaire.add(txtHireDate);
+//        jpFormulaire.add(txtHireDate);
+
+        //calendar picker
+        UtilDateModel model = new UtilDateModel();
+        //model.setDate(20,04,2014);
+        Properties p = new Properties();
+        p.put("text.today", "");
+        p.put("text.month", "");
+        p.put("text.year", "");
+        JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+        JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+        jpFormulaire.add(datePicker);
+
+        //fin calendar picker
         jpFormulaire.add(new JLabel());
 
         jpFormulaire.add(lblJobId);
         lblJobId.setHorizontalAlignment(SwingConstants.RIGHT);
-        jpFormulaire.add(txtJobId);
-        jpFormulaire.add(new JLabel());
+        genererComboBoxJobsID();
+        jpFormulaire.add(comboBoxJob);
+        comboBoxJob.addItemListener(itemListener);
+        jpFormulaire.add(lblJobIdDeails);
 
         //panel jpBoutons
         jpBoutons = new JPanel();
@@ -153,6 +185,16 @@ public class FenSaisirEmploye {
         btnEnregistrer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
+                if (!txtFirstName.getText().trim().equals("")
+                        && !txtLastName.getText().trim().equals("")
+                        && !txtEmail.getText().trim().equals("")) {
+
+                    ajouterEmploye();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Tous les champs sont obligatoir",
+                            "Echec formulaire", JOptionPane.ERROR_MESSAGE);
+
+                }
 
             }
         });
@@ -167,82 +209,69 @@ public class FenSaisirEmploye {
 
         //settings
         fenetre.setTitle("Formulaire");
-        fenetre.setSize(500, 500);
+        fenetre.setSize(500, 375);
         fenetre.setLocationRelativeTo(null);
         fenetre.setResizable(true);
         fenetre.setVisible(true);
     }
 
-    public void ajouterDepartement() {
+    public void ajouterEmploye() {
         Session session = null;
         Transaction transaction = null;
 
-//        try {
-//            session = HibernateUtil.sessionFactory.openSession();
-//            transaction = session.beginTransaction();
-//            Departments departement = new Departments();
-//            Employees employeeSelectionne = executeHQLQueryEmployee("from Employees e where e.employeeId = "
-//                    + comboBoxJob.getSelectedItem().toString());
-//            Locations locationSelectionne = executeHQLQueryLocation("from Locations l where l.locationId = "
-//                    + comboBoxLocation.getSelectedItem().toString());
-//            departement.setDepartmentName(txtDepartmentName.getText().trim());
-//            departement.setEmployees(employeeSelectionne);
-//            departement.setLocations(locationSelectionne);
-//            session.save(departement);
-//            txtDepartementId.setText(departement.getDepartmentId() + "");
-//            transaction.commit();
-//            JOptionPane.showMessageDialog(null, "Departemenet ajouté avec succes", "Modification", JOptionPane.INFORMATION_MESSAGE);
-//
-//        } catch (HibernateException e) {
-//            JOptionPane.showMessageDialog(null, "Echec ajout departement", "Echec formulaire", JOptionPane.ERROR_MESSAGE);
-//            transaction.rollback();
-//        }
+        try {
+            session = HibernateUtil.sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            Employees employe = new Employees();
+
+            employe.setFirstName(txtFirstName.getText().trim());
+            employe.setLastName(txtLastName.getText().trim());
+            employe.setEmail(txtEmail.getText().trim());
+            employe.setHireDate(new Date());// a modifier
+
+            Jobs jobSelectionne = executeHQLQueryJobs("from Jobs j where j.jobId = '"
+                    + comboBoxJob.getSelectedItem() + "'");
+            employe.setJobs(jobSelectionne);
+
+            session.save(employe);
+            txtEmployeeId.setText(employe.getEmployeeId() + "");
+            transaction.commit();
+            session.close();
+            JOptionPane.showMessageDialog(null, "Employe ajouté avec succes", "Modification", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (HibernateException e) {
+            JOptionPane.showMessageDialog(null, "Echec ajout employe", "Echec formulaire", JOptionPane.ERROR_MESSAGE);
+            transaction.rollback();
+            session.close();
+
+        }
     }
 
-    private void genererComboBoxManagerID() {
-//        comboBoxJob.addItem("aucun");
+    private void genererComboBoxJobsID() {
         Session session = new HibernateUtil().sessionFactory.openSession();
         session.beginTransaction();
-        Query query = session.createQuery("from Employees");
-        List listeEmployees = query.list();
-        for (Object object : listeEmployees) {
-            Employees employee = (Employees) object;
-            comboBoxJob.addItem(Integer.toString(employee.getEmployeeId()));
+        Query query = session.createQuery("from Jobs");
+        List listJobs = query.list();
+        for (Object object : listJobs) {
+            Jobs job = (Jobs) object;
+            comboBoxJob.addItem(job.getJobId());
         }
         session.close();
     }
 
     //execution requete HQL
-    private Employees executeHQLQueryEmployee(String query) {
+    private Jobs executeHQLQueryJobs(String query) {
 
         try {
             Session session = HibernateUtil.sessionFactory.openSession();
             session.beginTransaction();
             Query q = session.createQuery(query);
             List resultat = q.list();
-            Employees employee = (Employees) resultat.get(0);
+            Jobs job = (Jobs) resultat.get(0);
             session.getTransaction().commit();
-            return employee;
-
+            return job;
         } catch (HibernateException e) {
-            JOptionPane.showMessageDialog(null, e, "executeHQLQueryEmployee()", JOptionPane.ERROR_MESSAGE);
-            return null;
-        }
-    }
-
-    //execution requete HQL
-    private Locations executeHQLQueryLocation(String query) {
-
-        try {
-            Session session = HibernateUtil.sessionFactory.openSession();
-            session.beginTransaction();
-            Query q = session.createQuery(query);
-            List resultat = q.list();
-            Locations location = (Locations) resultat.get(0);
-            session.getTransaction().commit();
-            return location;
-        } catch (HibernateException e) {
-            JOptionPane.showMessageDialog(null, e, "executeHQLQueryLocation()", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, e, "executeHQLQueryJobs()", JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }
@@ -251,9 +280,30 @@ public class FenSaisirEmploye {
     ItemListener itemListener = new ItemListener() {
         @Override
         public void itemStateChanged(ItemEvent itemEvent) {
-            Locations location = executeHQLQueryLocation("from Locations l where l.locationId = " + itemEvent.getItem());
-            lblHireDate.setText(location.getCity());
+            Jobs job = executeHQLQueryJobs("from Jobs j where j.jobId = '" + itemEvent.getItem() + "'");
+            lblJobIdDeails.setText(job.getJobTitle());
         }
     };
+
+    //class pour calendar picker
+    private static class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
+
+        private String datePattern = "dd-MM-yyyy";
+        private SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
+
+        @Override
+        public Object stringToValue(String text) throws ParseException {
+            return dateFormatter.parseObject(text);
+        }
+
+        @Override
+        public String valueToString(Object value) throws ParseException {
+            if (value != null) {
+                Calendar cal = (Calendar) value;
+                return dateFormatter.format(cal.getTime());
+            }
+            return "";
+        }
+    }
 
 }

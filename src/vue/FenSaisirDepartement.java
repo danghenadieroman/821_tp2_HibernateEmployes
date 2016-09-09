@@ -132,7 +132,6 @@ public class FenSaisirDepartement {
         genererComboBoxLocationsID();
         jpFormulaire.add(comboBoxLocation);
         comboBoxLocation.addItemListener(itemListener);
-
         jpFormulaire.add(lblCity);//////
 
         //panel jpBoutons
