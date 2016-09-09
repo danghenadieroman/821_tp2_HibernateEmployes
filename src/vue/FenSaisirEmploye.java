@@ -207,7 +207,7 @@ public class FenSaisirEmploye {
 
         //settings
         fenetre.setTitle("Formulaire");
-        fenetre.setSize(500, 375);
+        fenetre.setSize(650, 375);
         fenetre.setLocationRelativeTo(null);
         fenetre.setResizable(true);
         fenetre.setVisible(true);
