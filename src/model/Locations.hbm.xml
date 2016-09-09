@@ -5,10 +5,13 @@
 <hibernate-mapping>
     <class name="model.Locations" table="LOCATIONS" schema="HR" optimistic-lock="version">
         <comment>Locations table that contains specific address of a specific office, warehouse, and/or production site of a company. Does not store addresses / locations of
-        customers. Contains 23 rows; references with the departments and countries tables.</comment>
+            customers. Contains 23 rows; references with the departments and countries tables.</comment>
         <id name="locationId" type="short">
             <column name="LOCATION_ID" precision="4" scale="0" />
-            <generator class="assigned" />
+            <generator class="sequence">
+                <param name="sequence">LOCATIONS_SEQ</param>
+                <param name="column">NEXT</param>
+            </generator>
         </id>
         <many-to-one name="countries" class="model.Countries" fetch="select">
             <column name="COUNTRY_ID" length="2">

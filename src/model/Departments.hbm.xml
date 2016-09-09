@@ -5,10 +5,13 @@
 <hibernate-mapping>
     <class name="model.Departments" table="DEPARTMENTS" schema="HR" optimistic-lock="version">
         <comment>Departments table that shows details of departments where employees work. Contains 27 rows; references with locations, employees, and job_history
-        tables.</comment>
+            tables.</comment>
         <id name="departmentId" type="short">
             <column name="DEPARTMENT_ID" precision="4" scale="0" />
-            <generator class="assigned" />
+            <generator class="sequence">
+                <param name="sequence">DEPARTMENTS_SEQ</param>
+                <param name="column">NEXT</param>
+            </generator>
         </id>
         <many-to-one name="locations" class="model.Locations" fetch="select">
             <column name="LOCATION_ID" precision="4" scale="0">
@@ -18,13 +21,13 @@
         <many-to-one name="employees" class="model.Employees" fetch="select">
             <column name="MANAGER_ID" precision="6" scale="0">
                 <comment>Manager_id of a department. Foreign key to employee_id column of employees table. The manager_id column of the employee table references this
-                column.</comment>
+                    column.</comment>
             </column>
         </many-to-one>
         <property name="departmentName" type="string">
             <column name="DEPARTMENT_NAME" length="30" not-null="true">
                 <comment>A not null column that shows name of a department. Administration, Marketing, Purchasing, Human Resources, Shipping, IT, Executive, Public Relations,
-                Sales, Finance, and Accounting.</comment>
+                    Sales, Finance, and Accounting.</comment>
             </column>
         </property>
         <set name="employeeses" table="EMPLOYEES" inverse="true" lazy="true" fetch="select">

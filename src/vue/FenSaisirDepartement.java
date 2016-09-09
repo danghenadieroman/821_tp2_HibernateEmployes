@@ -5,8 +5,11 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.ItemSelectable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -25,6 +28,7 @@ import javax.tools.DocumentationTool;
 import model.Departments;
 import model.Employees;
 import model.Locations;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -49,9 +53,10 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
     JLabel lblNomDepartement;
     JLabel lblManagerId;
     JLabel lblLocationId;
+    JLabel lblCity;
 
     JTextField txtDepartementId;
-    JTextField txtNomDepartement;
+    JTextField txtDepartmentName;
     JTextField txtManagerId;
     JTextField txtLocationId;
 
@@ -65,6 +70,9 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
 
     JComboBox<String> comboBoxManager = new JComboBox<String>();
     JComboBox<String> comboBoxLocation = new JComboBox<String>();
+
+    Employees employee;
+    Locations location;
 
     public FenSaisirDepartement() {
 
@@ -81,9 +89,10 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
         lblNomDepartement = new JLabel("Nom departement: ");
         lblManagerId = new JLabel("Manager ID: ");
         lblLocationId = new JLabel("Location ID: ");
+        lblCity = new JLabel();
 
         txtDepartementId = new JTextField(10);
-        txtNomDepartement = new JTextField(10);
+        txtDepartmentName = new JTextField(10);
         txtManagerId = new JTextField(10);
         txtLocationId = new JTextField(10);
 
@@ -118,7 +127,7 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
 
         jpFormulaire.add(lblNomDepartement);
         lblNomDepartement.setHorizontalAlignment(SwingConstants.RIGHT);
-        jpFormulaire.add(txtNomDepartement);
+        jpFormulaire.add(txtDepartmentName);
         jpFormulaire.add(new JLabel());
 
         // == COMBOBOX == Manager ID
@@ -135,10 +144,10 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
         lblLocationId.setHorizontalAlignment(SwingConstants.RIGHT);
 
         genererComboBoxLocationsID();
-
         jpFormulaire.add(comboBoxLocation);
+        comboBoxLocation.addItemListener(itemListener);
 
-        jpFormulaire.add(new JLabel());
+        jpFormulaire.add(lblCity);//////
         // == COMBOBOX == FIN == Location ID
 
         //panel jpBoutons
@@ -147,31 +156,18 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
         jpBoutons.add(btnEnregistrer);
         jpBoutons.add(btnQuitter);
 
-        //bouton ListEmployees
-        btnListeEmployees.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                FenListeEmployees fenListeEmpl = new FenListeEmployees();
-            }
-        });
-
-        //bouton ListeLocations
-        btnListeLocations.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-
-            }
-        });
-
         //bouton Enregistrer
         btnEnregistrer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                String selectedBook = (String) comboBoxLocation.getSelectedItem();
-                System.out.println("You seleted the book: " + selectedBook);
 
+                if (!txtDepartmentName.getText().trim().equals("")) {
+                    ajouterDepartement();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Le champ departement est obligatoir",
+                            "Formulaire invalide", JOptionPane.ERROR_MESSAGE);
+                }
             }
-
         });
 
         //bouton Quitter
@@ -190,29 +186,29 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
         fenetre.setVisible(true);
     }
 
-    private static String query_Location = "from Locations";
-    private static String query_Employee = "from Employees";
+    public void ajouterDepartement() {
+        Session session = null;
+        Transaction transaction = null;
+        try {
+            session = HibernateUtil.sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            Departments departement = new Departments();
+            Employees employeeSelectionne = executeHQLQueryEmployee("from Employees e where e.employeeId = "
+                    + comboBoxManager.getSelectedItem().toString());
+            Locations locationSelectionne = executeHQLQueryLocation("from Locations l where l.locationId = "
+                    + comboBoxLocation.getSelectedItem().toString());
+            departement.setDepartmentName(txtDepartmentName.getText().trim());
+            departement.setEmployees(employeeSelectionne);
+            departement.setLocations(locationSelectionne);
+            session.save(departement);
+            txtDepartementId.setText(departement.getDepartmentId() + "");
+            transaction.commit();
+            JOptionPane.showMessageDialog(null, "Departemenet ajouté avec succes", "Modification", JOptionPane.INFORMATION_MESSAGE);
 
-    public void ajouterDepartement(Departments departement) {
-
-    }
-
-    public void listDepartements() {
-        Session session = HibernateUtil.currentSession();
-        Transaction tx = session.beginTransaction();
-        List employees = session.createQuery("FROM Departments d").list();
-        Employees e1 = new Employees();
-        Departments dep1 = new Departments();
-        dep1.setEmployees(e1);
-        for (Iterator iterator = employees.iterator(); iterator.hasNext();) {
-            Departments dep = (Departments) iterator.next();
-            System.out.println("Departement ID: " + dep.getDepartmentId());
-            System.out.println("Nom departement: " + dep.getDepartmentName());
-
-            System.out.println("Employees: " + dep.getEmployees());
-            System.out.println("Location: " + dep.getLocations().getCountries().getRegions().getRegionName());
+        } catch (HibernateException e) {
+            JOptionPane.showMessageDialog(null, "Echec ajout departement", "Echec formulaire", JOptionPane.ERROR_MESSAGE);
+            transaction.rollback();
         }
-        tx.commit();
 
     }
 
@@ -220,9 +216,14 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent ae) {
     }
 
+    private static String query_Locations = "from Locations";
+    private static String query_Employees = "from Employees";
+
     private void genererComboBoxManagerID() {
+//        comboBoxManager.addItem("aucun");
         Session session = new HibernateUtil().sessionFactory.openSession();
-        Query query = session.createQuery(query_Employee);
+        session.beginTransaction();
+        Query query = session.createQuery(query_Employees);
         List listeEmployees = query.list();
         for (Object object : listeEmployees) {
             Employees employee = (Employees) object;
@@ -232,8 +233,10 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
     }
 
     private void genererComboBoxLocationsID() {
+//        comboBoxLocation.addItem(null);
         Session session = new HibernateUtil().sessionFactory.openSession();
-        Query query = session.createQuery(query_Location);
+        session.beginTransaction();
+        Query query = session.createQuery(query_Locations);
         List listeLocation = query.list();
         for (Object object : listeLocation) {
             Locations locations = (Locations) object;
@@ -241,5 +244,49 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
         }
         session.close();
     }
+
+    //execution requete HQL
+    private Employees executeHQLQueryEmployee(String query) {
+
+        try {
+            Session session = HibernateUtil.sessionFactory.openSession();
+            session.beginTransaction();
+            Query q = session.createQuery(query);
+            List resultat = q.list();
+            Employees employee = (Employees) resultat.get(0);
+            session.getTransaction().commit();
+            return employee;
+
+        } catch (HibernateException e) {
+            JOptionPane.showMessageDialog(null, e, "executeHQLQueryEmployee()", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
+
+    //execution requete HQL
+    private Locations executeHQLQueryLocation(String query) {
+
+        try {
+            Session session = HibernateUtil.sessionFactory.openSession();
+            session.beginTransaction();
+            Query q = session.createQuery(query);
+            List resultat = q.list();
+            Locations location = (Locations) resultat.get(0);
+            session.getTransaction().commit();
+            return location;
+        } catch (HibernateException e) {
+            JOptionPane.showMessageDialog(null, e, "executeHQLQueryLocation()", JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
+
+    //ComboBox Locations Listener
+    ItemListener itemListener = new ItemListener() {
+        @Override
+        public void itemStateChanged(ItemEvent itemEvent) {
+            Locations location = executeHQLQueryLocation("from Locations l where l.locationId = " + itemEvent.getItem());
+            lblCity.setText(location.getCity());
+        }
+    };
 
 }

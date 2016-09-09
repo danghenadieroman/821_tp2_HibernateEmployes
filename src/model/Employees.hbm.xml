@@ -7,7 +7,10 @@
         <comment>employees table. Contains 107 rows. References with departments, jobs, job_history tables. Contains a self reference.</comment>
         <id name="employeeId" type="int">
             <column name="EMPLOYEE_ID" precision="6" scale="0" />
-            <generator class="assigned" />
+            <generator class="sequence">
+                <param name="sequence">EMPLOYEES_SEQ</param>
+                <param name="column">NEXT</param>
+            </generator>
         </id>
         <many-to-one name="departments" class="model.Departments" fetch="select">
             <column name="DEPARTMENT_ID" precision="4" scale="0">
@@ -22,7 +25,7 @@
         <many-to-one name="employees" class="model.Employees" fetch="select">
             <column name="MANAGER_ID" precision="6" scale="0">
                 <comment>Manager id of the employee; has same domain as manager_id in departments table. Foreign key to employee_id column of employees table. (useful for
-                reflexive joins and CONNECT BY query)</comment>
+                    reflexive joins and CONNECT BY query)</comment>
             </column>
         </many-to-one>
         <property name="firstName" type="string">
@@ -64,7 +67,7 @@
             <key>
                 <column name="MANAGER_ID" precision="6" scale="0">
                     <comment>Manager_id of a department. Foreign key to employee_id column of employees table. The manager_id column of the employee table references this
-                    column.</comment>
+                        column.</comment>
                 </column>
             </key>
             <one-to-many class="model.Departments" />
@@ -73,7 +76,7 @@
             <key>
                 <column name="MANAGER_ID" precision="6" scale="0">
                     <comment>Manager id of the employee; has same domain as manager_id in departments table. Foreign key to employee_id column of employees table. (useful for
-                    reflexive joins and CONNECT BY query)</comment>
+                        reflexive joins and CONNECT BY query)</comment>
                 </column>
             </key>
             <one-to-many class="model.Employees" />
