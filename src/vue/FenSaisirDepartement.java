@@ -38,7 +38,7 @@ import util.HibernateUtil;
  *
  * @author Administrateur
  */
-public class FenSaisirDepartement extends JFrame implements ActionListener {
+public class FenSaisirDepartement {
 
     JFrame fenetre;
 
@@ -60,19 +60,11 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
     JTextField txtManagerId;
     JTextField txtLocationId;
 
-    JButton btnListeEmployees;
-    JButton btnListeLocations;
-
     JButton btnEnregistrer;
     JButton btnQuitter;
 
-    JLabel statusLabel = new JLabel();
-
     JComboBox<String> comboBoxManager = new JComboBox<String>();
     JComboBox<String> comboBoxLocation = new JComboBox<String>();
-
-    Employees employee;
-    Locations location;
 
     public FenSaisirDepartement() {
 
@@ -95,9 +87,6 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
         txtDepartmentName = new JTextField(10);
         txtManagerId = new JTextField(10);
         txtLocationId = new JTextField(10);
-
-        btnListeEmployees = new JButton("Sélectionner");
-        btnListeLocations = new JButton("Sélectionner");
 
         btnEnregistrer = new JButton("Enregistrer");
         btnQuitter = new JButton("Quitter");
@@ -134,21 +123,17 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
         jpFormulaire.add(lblManagerId);
         lblManagerId.setHorizontalAlignment(SwingConstants.RIGHT);
         jpFormulaire.add(comboBoxManager);
-
         genererComboBoxManagerID();
-
         jpFormulaire.add(new JLabel());
 
         // == COMBOBOX == Location ID
         jpFormulaire.add(lblLocationId);
         lblLocationId.setHorizontalAlignment(SwingConstants.RIGHT);
-
         genererComboBoxLocationsID();
         jpFormulaire.add(comboBoxLocation);
         comboBoxLocation.addItemListener(itemListener);
 
         jpFormulaire.add(lblCity);//////
-        // == COMBOBOX == FIN == Location ID
 
         //panel jpBoutons
         jpBoutons = new JPanel();
@@ -179,7 +164,7 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
         });
 
         //settings
-        fenetre.setTitle("Saisir Departement");
+        fenetre.setTitle("Formulaire");
         fenetre.setSize(500, 300);
         fenetre.setLocationRelativeTo(null);
         fenetre.setResizable(true);
@@ -189,6 +174,7 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
     public void ajouterDepartement() {
         Session session = null;
         Transaction transaction = null;
+
         try {
             session = HibernateUtil.sessionFactory.openSession();
             transaction = session.beginTransaction();
@@ -209,21 +195,13 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
             JOptionPane.showMessageDialog(null, "Echec ajout departement", "Echec formulaire", JOptionPane.ERROR_MESSAGE);
             transaction.rollback();
         }
-
     }
-
-    @Override
-    public void actionPerformed(ActionEvent ae) {
-    }
-
-    private static String query_Locations = "from Locations";
-    private static String query_Employees = "from Employees";
 
     private void genererComboBoxManagerID() {
 //        comboBoxManager.addItem("aucun");
         Session session = new HibernateUtil().sessionFactory.openSession();
         session.beginTransaction();
-        Query query = session.createQuery(query_Employees);
+        Query query = session.createQuery("from Employees");
         List listeEmployees = query.list();
         for (Object object : listeEmployees) {
             Employees employee = (Employees) object;
@@ -236,7 +214,7 @@ public class FenSaisirDepartement extends JFrame implements ActionListener {
 //        comboBoxLocation.addItem(null);
         Session session = new HibernateUtil().sessionFactory.openSession();
         session.beginTransaction();
-        Query query = session.createQuery(query_Locations);
+        Query query = session.createQuery("from Locations");
         List listeLocation = query.list();
         for (Object object : listeLocation) {
             Locations locations = (Locations) object;
