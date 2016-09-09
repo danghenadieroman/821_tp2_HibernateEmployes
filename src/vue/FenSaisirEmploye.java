@@ -100,7 +100,7 @@ public class FenSaisirEmploye {
         lblLastName = new JLabel("Nom:");
         lblEmail = new JLabel("Courriel:");
         lblHireDate = new JLabel("Date d'embouche:");
-        lblJobId = new JLabel("Job:");
+        lblJobId = new JLabel("Poste du travail:");
         lblJobIdDeails = new JLabel();
 
         txtEmployeeId = new JTextField(10);
@@ -152,16 +152,14 @@ public class FenSaisirEmploye {
 
         jpFormulaire.add(lblHireDate);
         lblHireDate.setHorizontalAlignment(SwingConstants.RIGHT);
-//        jpFormulaire.add(txtHireDate);
 
         //calendar picker
-        UtilDateModel model = new UtilDateModel();
-        //model.setDate(20,04,2014);
+        modelDate = new UtilDateModel();
         Properties p = new Properties();
         p.put("text.today", "");
         p.put("text.month", "");
         p.put("text.year", "");
-        JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
+        JDatePanelImpl datePanel = new JDatePanelImpl(modelDate, p);
         JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
         jpFormulaire.add(datePicker);
 
@@ -227,7 +225,7 @@ public class FenSaisirEmploye {
             employe.setFirstName(txtFirstName.getText().trim());
             employe.setLastName(txtLastName.getText().trim());
             employe.setEmail(txtEmail.getText().trim());
-            employe.setHireDate(new Date());// a modifier
+            employe.setHireDate(modelDate.getValue());// a modifier
 
             Jobs jobSelectionne = executeHQLQueryJobs("from Jobs j where j.jobId = '"
                     + comboBoxJob.getSelectedItem() + "'");
@@ -238,6 +236,7 @@ public class FenSaisirEmploye {
             transaction.commit();
             session.close();
             JOptionPane.showMessageDialog(null, "Employe ajouté avec succes", "Modification", JOptionPane.INFORMATION_MESSAGE);
+            fenetre.setVisible(false);
 
         } catch (HibernateException e) {
             JOptionPane.showMessageDialog(null, "Echec ajout employe", "Echec formulaire", JOptionPane.ERROR_MESSAGE);

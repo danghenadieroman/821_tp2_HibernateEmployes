@@ -189,7 +189,8 @@ public class FenSaisirDepartement {
             txtDepartementId.setText(departement.getDepartmentId() + "");
             transaction.commit();
             JOptionPane.showMessageDialog(null, "Departemenet ajouté avec succes", "Modification", JOptionPane.INFORMATION_MESSAGE);
-
+            fenetre.setVisible(false);
+            
         } catch (HibernateException e) {
             JOptionPane.showMessageDialog(null, "Echec ajout departement", "Echec formulaire", JOptionPane.ERROR_MESSAGE);
             transaction.rollback();
