@@ -36,7 +36,10 @@ import util.HibernateUtil;
 
 /**
  *
- * @author Administrateur
+ * @author Dan-Ghenadie Roman - 1395945
+ * @ ver 2.0
+ * @ date 09/09/2016
+ * @ tp2 - 821 - groupe 212
  */
 public class FenSaisirDepartement {
 
@@ -112,6 +115,7 @@ public class FenSaisirDepartement {
         jpFormulaire.add(lblDepartementId);
         lblDepartementId.setHorizontalAlignment(SwingConstants.RIGHT);
         jpFormulaire.add(txtDepartementId);
+        txtDepartementId.setEditable(false);
         jpFormulaire.add(new JLabel());
 
         jpFormulaire.add(lblNomDepartement);
@@ -162,7 +166,7 @@ public class FenSaisirDepartement {
             }
         });
 
-        //settings
+        //fenetre configuration
         fenetre.setTitle("Formulaire");
         fenetre.setSize(500, 300);
         fenetre.setLocationRelativeTo(null);
@@ -188,11 +192,13 @@ public class FenSaisirDepartement {
             session.save(departement);
             txtDepartementId.setText(departement.getDepartmentId() + "");
             transaction.commit();
-            JOptionPane.showMessageDialog(null, "Departemenet ajouté avec succes", "Modification", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Departemenet ajouté avec succes",
+                    "Modification", JOptionPane.INFORMATION_MESSAGE);
             fenetre.setVisible(false);
-            
+
         } catch (HibernateException e) {
-            JOptionPane.showMessageDialog(null, "Echec ajout departement", "Echec formulaire", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Echec ajout departement",
+                    "Echec formulaire", JOptionPane.ERROR_MESSAGE);
             transaction.rollback();
         }
     }
@@ -236,7 +242,8 @@ public class FenSaisirDepartement {
             return employee;
 
         } catch (HibernateException e) {
-            JOptionPane.showMessageDialog(null, e, "executeHQLQueryEmployee()", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, e, "executeHQLQueryEmployee()",
+                    JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }
@@ -253,7 +260,8 @@ public class FenSaisirDepartement {
             session.getTransaction().commit();
             return location;
         } catch (HibernateException e) {
-            JOptionPane.showMessageDialog(null, e, "executeHQLQueryLocation()", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, e, "executeHQLQueryLocation()",
+                    JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }
@@ -262,7 +270,8 @@ public class FenSaisirDepartement {
     ItemListener itemListener = new ItemListener() {
         @Override
         public void itemStateChanged(ItemEvent itemEvent) {
-            Locations location = executeHQLQueryLocation("from Locations l where l.locationId = " + itemEvent.getItem());
+            Locations location = executeHQLQueryLocation("from Locations l where l.locationId = "
+                    + itemEvent.getItem());
             lblCity.setText(location.getCity());
         }
     };

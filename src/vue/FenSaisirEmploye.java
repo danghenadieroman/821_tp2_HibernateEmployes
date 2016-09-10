@@ -50,7 +50,10 @@ import org.jdatepicker.*;
 
 /**
  *
- * @author Administrateur
+ * @author Dan-Ghenadie Roman - 1395945
+ * @ ver 2.0
+ * @ date 09/09/2016
+ * @ tp2 - 821 - groupe 212
  */
 public class FenSaisirEmploye {
 
@@ -69,7 +72,7 @@ public class FenSaisirEmploye {
     JLabel lblEmail;
     JLabel lblHireDate;
     JLabel lblJobId;
-    JLabel lblJobIdDeails;
+    JLabel lblJobIdDetails;
 
     JTextField txtEmployeeId;
     JTextField txtFirstName;
@@ -101,7 +104,7 @@ public class FenSaisirEmploye {
         lblEmail = new JLabel("Courriel:");
         lblHireDate = new JLabel("Date d'embouche:");
         lblJobId = new JLabel("Poste du travail:");
-        lblJobIdDeails = new JLabel();
+        lblJobIdDetails = new JLabel();
 
         txtEmployeeId = new JTextField(10);
         txtFirstName = new JTextField(10);
@@ -133,6 +136,7 @@ public class FenSaisirEmploye {
         jpFormulaire.add(lblEmployeeId);
         lblEmployeeId.setHorizontalAlignment(SwingConstants.RIGHT);
         jpFormulaire.add(txtEmployeeId);
+        txtEmployeeId.setEditable(false);
         jpFormulaire.add(new JLabel());
 
         jpFormulaire.add(lblFirstName);
@@ -171,7 +175,7 @@ public class FenSaisirEmploye {
         genererComboBoxJobsID();
         jpFormulaire.add(comboBoxJob);
         comboBoxJob.addItemListener(itemListener);
-        jpFormulaire.add(lblJobIdDeails);
+        jpFormulaire.add(lblJobIdDetails);
 
         //panel jpBoutons
         jpBoutons = new JPanel();
@@ -191,9 +195,7 @@ public class FenSaisirEmploye {
                 } else {
                     JOptionPane.showMessageDialog(null, "Tous les champs sont obligatoir",
                             "Echec formulaire", JOptionPane.ERROR_MESSAGE);
-
                 }
-
             }
         });
 
@@ -235,11 +237,13 @@ public class FenSaisirEmploye {
             txtEmployeeId.setText(employe.getEmployeeId() + "");
             transaction.commit();
             session.close();
-            JOptionPane.showMessageDialog(null, "Employe ajouté avec succes", "Modification", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Employe ajouté avec succes",
+                    "Modification", JOptionPane.INFORMATION_MESSAGE);
             fenetre.setVisible(false);
 
         } catch (HibernateException e) {
-            JOptionPane.showMessageDialog(null, "Echec ajout employe", "Echec formulaire", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Echec ajout employe",
+                    "Echec formulaire", JOptionPane.ERROR_MESSAGE);
             transaction.rollback();
             session.close();
 
@@ -270,7 +274,8 @@ public class FenSaisirEmploye {
             session.getTransaction().commit();
             return job;
         } catch (HibernateException e) {
-            JOptionPane.showMessageDialog(null, e, "executeHQLQueryJobs()", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, e, "executeHQLQueryJobs()",
+                    JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }
@@ -279,12 +284,13 @@ public class FenSaisirEmploye {
     ItemListener itemListener = new ItemListener() {
         @Override
         public void itemStateChanged(ItemEvent itemEvent) {
-            Jobs job = executeHQLQueryJobs("from Jobs j where j.jobId = '" + itemEvent.getItem() + "'");
-            lblJobIdDeails.setText(job.getJobTitle());
+            Jobs job = executeHQLQueryJobs("from Jobs j where j.jobId = '"
+                    + itemEvent.getItem() + "'");
+            lblJobIdDetails.setText(job.getJobTitle());
         }
     };
 
-    //class pour calendar picker
+    //inner class pour calendar picker
     private static class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
 
         private String datePattern = "dd-MM-yyyy";

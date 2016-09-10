@@ -24,7 +24,10 @@ import util.HibernateUtil;
 
 /**
  *
- * @author Administrateur
+ * @author Dan-Ghenadie Roman - 1395945
+ * @ ver 2.0
+ * @ date 09/09/2016
+ * @ tp2 - 821 - groupe 212
  */
 public class FenRechercherEmploye {
 
@@ -101,7 +104,6 @@ public class FenRechercherEmploye {
                 } else if (!txtNom.getText().trim().equals("")) {
                     runQueryLastName();
                 }
-
             }
         });
 
@@ -110,7 +112,6 @@ public class FenRechercherEmploye {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new FenSaisirDepartement();
-
             }
         });
 
@@ -165,7 +166,8 @@ public class FenRechercherEmploye {
             session.getTransaction().commit();
 
         } catch (HibernateException e) {
-            JOptionPane.showMessageDialog(null, e, "Hibernate erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, e, "Hibernate erreur",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
